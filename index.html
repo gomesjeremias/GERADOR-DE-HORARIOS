@@ -714,6 +714,81 @@
       });
     }
 
+    // --- EXPORTAÇÃO ---
+
+    // Gera um HTML simplificado só com o quadro de horários (para PDF/XLS)
+    function getTimetableExportHTML() {
+      const container = document.getElementById('timetableContainer');
+      const html = `
+        <html>
+            <head>
+                <meta charset="UTF-8">
+                <title>Quadro de Horários</title>
+                <style>
+                    table {
+                        border-collapse: collapse;
+                        width: 100%;
+                        margin-bottom: 20px;
+                    }
+                    th, td {
+                        border: 1px solid #444;
+                        padding: 4px;
+                        text-align: center;
+                        font-size: 12px;
+                    }
+                    th {
+                        background: #ddd;
+                        font-weight: bold;
+                    }
+                    h3 {
+                        margin: 10px 0 5px 0;
+                        font-size: 14px;
+                    }
+                </style>
+            </head>
+            <body>
+                <h2>Quadro de Horários</h2>
+                ${container.innerHTML}
+            </body>
+        </html>
+    `;
+      return html;
+    }
+
+    // Exportar "PDF" via diálogo de impressão (o usuário escolhe Salvar como PDF)
+    function exportPDF() {
+      const exportHTML = getTimetableExportHTML();
+      const printWindow = window.open('', '', 'width=1200,height=800');
+
+      printWindow.document.open();
+      printWindow.document.write(exportHTML);
+      printWindow.document.close();
+
+      // Dá um pequeno tempo para o conteúdo renderizar antes de imprimir
+      printWindow.focus();
+      printWindow.print();
+      // (se quiser que a janela feche automaticamente depois da impressão)
+      // printWindow.close();
+    }
+
+    // Exportar XLS usando HTML lido pelo Excel
+    function exportXLS() {
+      const exportHTML = getTimetableExportHTML();
+
+      const blob = new Blob([exportHTML], {
+        type: 'application/vnd.ms-excel;charset=utf-8;'
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'horario_escolar.xls';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
     // Recalcula as estatísticas a partir do timetable atual
     function recalcStats() {
       const stats = {
@@ -765,53 +840,53 @@
     }
 
     function onDrop(e) {
-    e.preventDefault();
-    const cell = e.currentTarget.closest('td');
-    if (!cell || !draggedLessonOrigin) return;
+      e.preventDefault();
+      const cell = e.currentTarget.closest('td');
+      if (!cell || !draggedLessonOrigin) return;
 
-    const day = cell.dataset.day;
-    const time = cell.dataset.time;
-    const className = cell.dataset.class;
+      const day = cell.dataset.day;
+      const time = cell.dataset.time;
+      const className = cell.dataset.class;
 
-    // mesmo campo: não faz nada
-    if (
+      // mesmo campo: não faz nada
+      if (
         draggedLessonOrigin.day === day &&
         draggedLessonOrigin.time === time &&
         draggedLessonOrigin.className === className
-    ) {
+      ) {
         draggedLessonOrigin = null;
         return;
-    }
+      }
 
-    // se destino estiver ocupado, não permite
-    if (timetable[day][time][className]) {
+      // se destino estiver ocupado, não permite
+      if (timetable[day][time][className]) {
         alert('Este horário já está ocupado. Libere o campo antes de mover outra aula.');
         draggedLessonOrigin = null;
         return;
-    }
+      }
 
-    const moving = timetable[draggedLessonOrigin.day][draggedLessonOrigin.time][draggedLessonOrigin.className];
-    if (!moving) {
+      const moving = timetable[draggedLessonOrigin.day][draggedLessonOrigin.time][draggedLessonOrigin.className];
+      if (!moving) {
         draggedLessonOrigin = null;
         return;
-    }
+      }
 
-    // verifica conflito de professor
-    if (hasTeacherConflict(moving.teacherUpper, day, time, draggedLessonOrigin)) {
+      // verifica conflito de professor
+      if (hasTeacherConflict(moving.teacherUpper, day, time, draggedLessonOrigin)) {
         alert('Conflito de horário: este professor já possui aula neste horário em outra turma.');
         draggedLessonOrigin = null;
         return;
+      }
+
+      // Move a aula
+      timetable[draggedLessonOrigin.day][draggedLessonOrigin.time][draggedLessonOrigin.className] = null;
+      timetable[day][time][className] = moving;
+
+      draggedLessonOrigin = null;
+
+      renderTimetable();
+      recalcStats();
     }
-
-    // Move a aula
-    timetable[draggedLessonOrigin.day][draggedLessonOrigin.time][draggedLessonOrigin.className] = null;
-    timetable[day][time][className] = moving;
-
-    draggedLessonOrigin = null;
-
-    renderTimetable();
-    recalcStats();
-}
 
 
     // Clique em uma aula: copiar
@@ -1074,8 +1149,9 @@
     // document.getElementById('exportPDF').addEventListener('click', exportPDF);
     // document.getElementById('exportXLS').addEventListener('click', exportXLS);
 
-    // document.getElementById('exportPDF').addEventListener('click', exportPDF); // Implementar depois
-    // document.getElementById('exportXLS').addEventListener('click', exportXLS); // Implementar depois
+    document.getElementById('exportPDF').addEventListener('click', exportPDF);
+    document.getElementById('exportXLS').addEventListener('click', exportXLS);
+
 
     // Inicialização
     populateClassSelect();
