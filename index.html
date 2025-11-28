@@ -60,7 +60,6 @@
       margin-bottom: 20px;
       align-items: flex-end;
       flex-wrap: wrap;
-      /* permite quebrar linha quando necessário */
     }
 
     .input-group>div {
@@ -244,12 +243,10 @@
       height: 100%;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       cursor: move;
-      /* indica que é arrastável */
     }
 
     .lesson span {
       pointer-events: none;
-      /* evita capturar o clique no texto em vez do bloco */
     }
 
     .copied-lesson {
@@ -262,58 +259,40 @@
       background-color: #ff6347;
     }
 
-    /* Tomato */
     .color-1 {
       background-color: #4682b4;
     }
 
-    /* SteelBlue */
     .color-2 {
       background-color: #3cb371;
     }
 
-    /* MediumSeaGreen */
     .color-3 {
       background-color: #ffa500;
     }
 
-    /* Orange */
     .color-4 {
       background-color: #9370db;
     }
 
-    /* MediumPurple */
     .color-5 {
       background-color: #ff69b4;
     }
 
-    /* HotPink */
     .color-6 {
       background-color: #00ced1;
     }
 
-    /* DarkTurquoise */
     .color-7 {
       background-color: #f08080;
     }
 
-    /* LightCoral */
     .color-8 {
       background-color: #6a5acd;
     }
 
-    /* SlateBlue */
     .color-9 {
       background-color: #20b2aa;
-    }
-
-    /* LightSeaGreen */
-
-    .stats-container {
-      margin-top: 20px;
-      padding: 20px;
-      background-color: #e9ecef;
-      border-radius: 10px;
     }
 
     .stats-grid {
@@ -412,9 +391,18 @@
         <div>
           <label for="classSelect">Turmas que o professor leciona</label>
           <select id="classSelect" multiple>
-            <!-- preenchido via JavaScript -->
+            <option value="6º ano 01">6º ano 01</option>
+            <option value="6º ano 02">6º ano 02</option>
+            <option value="6º ano 03">6º ano 03</option>
+            <option value="7º ano 01">7º ano 01</option>
+            <option value="7º ano 02">7º ano 02</option>
+            <option value="8º ano 01">8º ano 01</option>
+            <option value="8º ano 02">8º ano 02</option>
+            <option value="9º ano 01">9º ano 01</option>
+            <option value="9º ano 02">9º ano 02</option>
           </select>
           <span class="small-hint">Use Ctrl+Clique (ou ⌘+Clique) para selecionar várias turmas.</span>
+
         </div>
         <button id="addTeacherButton">➕ Adicionar Professor</button>
       </div>
@@ -444,6 +432,7 @@
         Dica: arraste e solte as aulas para ajustar o quadro.
         Clique em uma aula para copiá-la e depois clique em um espaço vazio para colar (respeitando conflitos de horário
         do professor).
+        Clique em uma aula e aperte a tecla <strong>Delete</strong> para apagá-la.
       </p>
       <div class="timetable-container">
         <div id="timetableContainer">
@@ -453,7 +442,8 @@
     </div>
   </div>
 
-  <script>
+  
+    <script>
     // Variáveis globais
     const days = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira"];
     const timeSlots = ["07:45 - 08:30", "08:30 - 09:15", "09:15 - 10:00", "10:15 - 11:00", "11:00 - 11:45"];
@@ -493,17 +483,6 @@
             timetable[day][time][className] = null; // null = slot vazio
           });
         });
-      });
-    }
-
-    function populateClassSelect() {
-      const classSelect = document.getElementById('classSelect');
-      classSelect.innerHTML = '';
-      classes.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c;
-        opt.textContent = c;
-        classSelect.appendChild(opt);
       });
     }
 
@@ -569,7 +548,7 @@
       }
     }
 
-    // --- Funções de Renderização ---
+    // --- Renderização da lista de professores ---
 
     function renderTeacherList() {
       const list = document.getElementById('teacherList');
@@ -582,15 +561,17 @@
         const item = document.createElement('div');
         item.className = 'teacher-item';
         item.innerHTML = `
-                    <div class="teacher-info">
-                        <strong>${t.name}</strong> - ${t.subject} (${totalRequired} aulas totais)
-                        ${t.restDay !== 'Nenhum' ? `(Hora-Atividade: ${t.restDay})` : ''}${turmasTexto}
-                    </div>
-                    <button class="remove-btn" onclick="removeTeacher(${index})">Remover</button>
-                `;
+          <div class="teacher-info">
+            <strong>${t.name}</strong> - ${t.subject} (${totalRequired} aulas totais)
+            ${t.restDay !== 'Nenhum' ? `(Hora-Atividade: ${t.restDay})` : ''}${turmasTexto}
+          </div>
+          <button class="remove-btn" onclick="removeTeacher(${index})">Remover</button>
+        `;
         list.appendChild(item);
       });
     }
+
+    // --- Renderização do quadro de horários ---
 
     function renderTimetable() {
       const container = document.getElementById('timetableContainer');
@@ -628,23 +609,23 @@
                 copiedFrom.className === className;
               const copiedClass = isCopied ? 'copied-lesson' : '';
               bodyHtml += `
-                                <td data-day="${day}" data-time="${time}" data-class="${className}"
-                                    ondragover="onDragOver(event)" ondrop="onDrop(event)">
-                                    <div class="lesson ${colorClass} ${copiedClass}"
-                                         draggable="true"
-                                         data-day="${day}" data-time="${time}" data-class="${className}"
-                                         ondragstart="onDragStart(event)"
-                                         onclick="onLessonClick(event)">
-                                        <span>${lesson.subjectName}</span>
-                                        <span>${lesson.teacherName}</span>
-                                    </div>
-                                </td>`;
+                <td data-day="${day}" data-time="${time}" data-class="${className}"
+                    ondragover="onDragOver(event)" ondrop="onDrop(event)">
+                  <div class="lesson ${colorClass} ${copiedClass}"
+                       draggable="true"
+                       data-day="${day}" data-time="${time}" data-class="${className}"
+                       ondragstart="onDragStart(event)"
+                       onclick="onLessonClick(event)">
+                    <span>${lesson.subjectName}</span>
+                    <span>${lesson.teacherName}</span>
+                  </div>
+                </td>`;
             } else {
               bodyHtml += `
-                                <td data-day="${day}" data-time="${time}" data-class="${className}"
-                                    ondragover="onDragOver(event)" ondrop="onDrop(event)"
-                                    onclick="onCellClick(event)">
-                                </td>`;
+                <td data-day="${day}" data-time="${time}" data-class="${className}"
+                    ondragover="onDragOver(event)" ondrop="onDrop(event)"
+                    onclick="onCellClick(event)">
+                </td>`;
             }
           });
           bodyHtml += '</tr>';
@@ -654,6 +635,8 @@
         container.appendChild(table);
       });
     }
+
+    // --- Estatísticas ---
 
     function renderStats(stats) {
       const container = document.getElementById('statsContainer');
@@ -670,7 +653,6 @@
             totalRequired += required;
           }
 
-          // Contar quantas aulas daquela disciplina foram alocadas para a turma
           let assignedForClass = 0;
           days.forEach(day => {
             timeSlots.forEach(time => {
@@ -686,9 +668,9 @@
         const item = document.createElement('div');
         item.className = 'stat-item';
         item.innerHTML = `
-                    <strong>${className}</strong>
-                    <span>${totalAssigned} / ${totalRequired} aulas totais</span>
-                `;
+          <strong>${className}</strong>
+          <span>${totalAssigned} / ${totalRequired} aulas totais</span>
+        `;
         container.appendChild(item);
       });
 
@@ -707,86 +689,11 @@
         }
 
         item.innerHTML = `
-                    <strong>${t.name} (${t.subject})</strong>
-                    <span>${statusText} ${extra}</span>
-                `;
+          <strong>${t.name} (${t.subject})</strong>
+          <span>${statusText} ${extra}</span>
+        `;
         container.appendChild(item);
       });
-    }
-
-    // --- EXPORTAÇÃO ---
-
-    // Gera um HTML simplificado só com o quadro de horários (para PDF/XLS)
-    function getTimetableExportHTML() {
-      const container = document.getElementById('timetableContainer');
-      const html = `
-        <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Quadro de Horários</title>
-                <style>
-                    table {
-                        border-collapse: collapse;
-                        width: 100%;
-                        margin-bottom: 20px;
-                    }
-                    th, td {
-                        border: 1px solid #444;
-                        padding: 4px;
-                        text-align: center;
-                        font-size: 12px;
-                    }
-                    th {
-                        background: #ddd;
-                        font-weight: bold;
-                    }
-                    h3 {
-                        margin: 10px 0 5px 0;
-                        font-size: 14px;
-                    }
-                </style>
-            </head>
-            <body>
-                <h2>Quadro de Horários</h2>
-                ${container.innerHTML}
-            </body>
-        </html>
-    `;
-      return html;
-    }
-
-    // Exportar "PDF" via diálogo de impressão (o usuário escolhe Salvar como PDF)
-    function exportPDF() {
-      const exportHTML = getTimetableExportHTML();
-      const printWindow = window.open('', '', 'width=1200,height=800');
-
-      printWindow.document.open();
-      printWindow.document.write(exportHTML);
-      printWindow.document.close();
-
-      // Dá um pequeno tempo para o conteúdo renderizar antes de imprimir
-      printWindow.focus();
-      printWindow.print();
-      // (se quiser que a janela feche automaticamente depois da impressão)
-      // printWindow.close();
-    }
-
-    // Exportar XLS usando HTML lido pelo Excel
-    function exportXLS() {
-      const exportHTML = getTimetableExportHTML();
-
-      const blob = new Blob([exportHTML], {
-        type: 'application/vnd.ms-excel;charset=utf-8;'
-      });
-
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'horario_escolar.xls';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
     }
 
     // Recalcula as estatísticas a partir do timetable atual
@@ -796,10 +703,8 @@
         teachers: []
       };
 
-      // Zera contagem de aulas dos professores
       teachers.forEach(t => t.assigned = 0);
 
-      // Conta aulas por turma e por professor
       classes.forEach(className => {
         let classAssigned = 0;
         days.forEach(day => {
@@ -821,6 +726,74 @@
 
       stats.teachers = teachers.map(t => ({ ...t }));
       renderStats(stats);
+    }
+
+    // --- EXPORTAÇÃO ---
+
+    function getTimetableExportHTML() {
+      const container = document.getElementById('timetableContainer');
+      const html = `
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <title>Quadro de Horários</title>
+            <style>
+              table {
+                border-collapse: collapse;
+                width: 100%;
+                margin-bottom: 20px;
+              }
+              th, td {
+                border: 1px solid #444;
+                padding: 4px;
+                text-align: center;
+                font-size: 12px;
+              }
+              th {
+                background: #ddd;
+                font-weight: bold;
+              }
+              h3 {
+                margin: 10px 0 5px 0;
+                font-size: 14px;
+              }
+            </style>
+          </head>
+          <body>
+            <h2>Quadro de Horários</h2>
+            ${container.innerHTML}
+          </body>
+        </html>`;
+      return html;
+    }
+
+    function exportPDF() {
+      const exportHTML = getTimetableExportHTML();
+      const printWindow = window.open('', '', 'width=1200,height=800');
+
+      printWindow.document.open();
+      printWindow.document.write(exportHTML);
+      printWindow.document.close();
+
+      printWindow.focus();
+      printWindow.print();
+    }
+
+    function exportXLS() {
+      const exportHTML = getTimetableExportHTML();
+
+      const blob = new Blob([exportHTML], {
+        type: 'application/vnd.ms-excel;charset=utf-8;'
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'horario_escolar.xls';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
     // --- Drag & Drop + Copiar/Colar ---
@@ -848,7 +821,6 @@
       const time = cell.dataset.time;
       const className = cell.dataset.class;
 
-      // mesmo campo: não faz nada
       if (
         draggedLessonOrigin.day === day &&
         draggedLessonOrigin.time === time &&
@@ -858,7 +830,6 @@
         return;
       }
 
-      // se destino estiver ocupado, não permite
       if (timetable[day][time][className]) {
         alert('Este horário já está ocupado. Libere o campo antes de mover outra aula.');
         draggedLessonOrigin = null;
@@ -871,14 +842,12 @@
         return;
       }
 
-      // verifica conflito de professor
       if (hasTeacherConflict(moving.teacherUpper, day, time, draggedLessonOrigin)) {
         alert('Conflito de horário: este professor já possui aula neste horário em outra turma.');
         draggedLessonOrigin = null;
         return;
       }
 
-      // Move a aula
       timetable[draggedLessonOrigin.day][draggedLessonOrigin.time][draggedLessonOrigin.className] = null;
       timetable[day][time][className] = moving;
 
@@ -887,7 +856,6 @@
       renderTimetable();
       recalcStats();
     }
-
 
     // Clique em uma aula: copiar
     function onLessonClick(e) {
@@ -900,7 +868,7 @@
 
       copiedLesson = { ...lesson };
       copiedFrom = { day, time, className };
-      renderTimetable(); // só para atualizar o destaque visual
+      renderTimetable();
     }
 
     // Clique em um campo vazio: colar aula copiada
@@ -929,36 +897,26 @@
 
     // --- Delete com tecla Delete (apaga a aula selecionada) ---
     function handleKeyDown(e) {
-      // Verifica se a tecla é Delete
       if (e.key === 'Delete' || e.key === 'Del' || e.keyCode === 46) {
-        if (!copiedFrom) {
-          return; // nenhuma aula selecionada
-        }
+        if (!copiedFrom) return;
 
         const { day, time, className } = copiedFrom;
 
-        // Verifica se existe mesmo a aula neste campo
         if (
           timetable[day] &&
           timetable[day][time] &&
           timetable[day][time][className]
         ) {
-          // Apaga a aula
           timetable[day][time][className] = null;
-
-          // Limpa seleção/cópia
           copiedLesson = null;
           copiedFrom = null;
-
-          // Re-renderiza quadro e estatísticas
           renderTimetable();
           recalcStats();
         }
       }
     }
 
-
-    // --- Funções de Ação ---
+    // --- Ações ---
 
     function addTeacher() {
       const nameInput = document.getElementById('teacherNameInput');
@@ -969,7 +927,11 @@
       const name = nameInput.value.trim();
       const subject = subjectSelect.value;
       const restDay = restDaySelect.value;
-      const selectedClasses = Array.from(classSelect.selectedOptions).map(o => o.value);
+
+      // compatível com qualquer navegador
+      const selectedClasses = Array.from(classSelect.options)
+        .filter(o => o.selected)
+        .map(o => o.value);
 
       if (!name || !subject) {
         alert('Preencha o nome do professor e selecione a disciplina.');
@@ -987,7 +949,6 @@
         return;
       }
 
-      // Verifica se já existe um professor com o mesmo nome
       if (teachers.some(t => t.name.toUpperCase() === name.toUpperCase())) {
         alert('Já existe um professor com este nome. Por favor, use um nome único (ex: Maria S. ou Maria C.).');
         return;
@@ -1000,7 +961,7 @@
         restDay: restDay,
         load: load,
         classes: selectedClasses,
-        assigned: 0 // será recalculado nas estatísticas
+        assigned: 0
       });
 
       nameInput.value = '';
@@ -1024,17 +985,16 @@
       recalcStats();
     }
 
-    // --- Algoritmo de Distribuição (Greedy Otimizado) ---
+    // --- Distribuição automática ---
 
     function distributeTimetable() {
-      clearTimetable(); // Limpa antes de começar
+      clearTimetable();
 
       if (teachers.length === 0) {
         alert("Adicione pelo menos um professor para distribuir.");
         return;
       }
 
-      // 1. Criar a lista de todas as aulas a serem alocadas
       let allLessons = [];
       teachers.forEach(t => {
         if (!t.classes || t.classes.length === 0) return;
@@ -1042,12 +1002,12 @@
           for (let i = 0; i < t.load; i++) {
             allLessons.push({
               teacher: t.name,
-              teacherUpper: t.name.toUpperCase(), // Usar o nome do professor como identificador único
+              teacherUpper: t.name.toUpperCase(),
               subject: t.subject,
               subjectUpper: t.subject.toUpperCase(),
               className: className,
               restDay: t.restDay,
-              maxPerDay: 2, // Valor fixo para o limite de aulas por dia
+              maxPerDay: 2,
               load: t.load
             });
           }
@@ -1059,54 +1019,44 @@
         return;
       }
 
-      // 2. Ordenar as aulas (Heurística: aulas mais restritas primeiro)
-      // Prioridade: 1. Professores com dia de folga. 2. Disciplinas com maior carga horária.
       allLessons.sort((a, b) => {
         const aRestricted = a.restDay !== 'Nenhum' ? 1 : 0;
         const bRestricted = b.restDay !== 'Nenhum' ? 1 : 0;
-
-        if (aRestricted !== bRestricted) return bRestricted - aRestricted; // Prioriza quem tem dia de folga
-        return b.load - a.load; // Prioriza carga horária maior
+        if (aRestricted !== bRestricted) return bRestricted - aRestricted;
+        return b.load - a.load;
       });
 
-      // 3. Tentar alocar cada aula sequencialmente (Greedy)
       let unassignedLessons = [];
 
       for (const lesson of allLessons) {
         let slotFound = false;
 
-        // Criar lista de slots disponíveis (dia, horário) para a turma da aula
         let availableSlots = [];
         days.forEach(day => {
-          if (day === lesson.restDay) return; // pula dia de hora-atividade
+          if (day === lesson.restDay) return;
           timeSlots.forEach(time => {
             availableSlots.push({ day, time });
           });
         });
 
-        // Embaralhar slots para distribuição mais uniforme
         shuffleArray(availableSlots);
 
         for (const slot of availableSlots) {
           const { day, time } = slot;
           const className = lesson.className;
 
-          // 3.1. Conflito de Professor (mesmo professor em 2 lugares ao mesmo tempo)
           if (teacherBusy(lesson.teacherUpper, day, time)) {
             continue;
           }
 
-          // 3.2. Limite de Aulas por Dia (na mesma turma)
           if (countSubjectInDay(lesson.subjectUpper, className, day) >= lesson.maxPerDay) {
             continue;
           }
 
-          // 3.3. Slot já ocupado por outra disciplina na mesma turma
           if (timetable[day][time][className] !== null) {
             continue;
           }
 
-          // Se chegou aqui, o slot é seguro. Alocar a aula.
           timetable[day][time][className] = {
             teacherName: lesson.teacher,
             teacherUpper: lesson.teacherUpper,
@@ -1115,7 +1065,7 @@
           };
 
           slotFound = true;
-          break; // Passa para a próxima aula
+          break;
         }
 
         if (!slotFound) {
@@ -1123,7 +1073,6 @@
         }
       }
 
-      // 4. Renderizar Resultados + Estatísticas
       renderTimetable();
       recalcStats();
 
@@ -1131,7 +1080,7 @@
         alert("✅ Distribuição de horários concluída com sucesso! Todas as aulas foram alocadas.");
       } else {
         const unassignedCount = unassignedLessons.length;
-        alert(`⚠️ Distribuição concluída, mas ${unassignedCount} aulas não puderam ser alocadas devido a conflitos de horário ou restrições. Verifique as estatísticas e ajuste manualmente pelo quadro (drag and drop / copiar e colar).`);
+        alert(`⚠️ Distribuição concluída, mas ${unassignedCount} aulas não puderam ser alocadas. Ajuste manualmente pelo quadro (drag and drop / copiar e colar).`);
       }
     }
 
@@ -1140,25 +1089,16 @@
     document.getElementById('addTeacherButton').addEventListener('click', addTeacher);
     document.getElementById('distributeButton').addEventListener('click', distributeTimetable);
     document.getElementById('clearButton').addEventListener('click', clearTimetable);
-    document.getElementById('addTeacherButton').addEventListener('click', addTeacher);
-    document.getElementById('distributeButton').addEventListener('click', distributeTimetable);
-    document.getElementById('clearButton').addEventListener('click', clearTimetable);
-    // Ouve a tecla Delete para apagar a aula selecionada
-    document.addEventListener('keydown', handleKeyDown);
-
-    // document.getElementById('exportPDF').addEventListener('click', exportPDF);
-    // document.getElementById('exportXLS').addEventListener('click', exportXLS);
-
     document.getElementById('exportPDF').addEventListener('click', exportPDF);
     document.getElementById('exportXLS').addEventListener('click', exportXLS);
-
+    document.addEventListener('keydown', handleKeyDown);
 
     // Inicialização
-    populateClassSelect();
     initializeTimetable();
     renderTimetable();
     recalcStats();
-  </script>
+</script>
+
 </body>
 
 </html>
