@@ -731,41 +731,105 @@
     // --- EXPORTAÇÃO ---
 
     function getTimetableExportHTML() {
-      const container = document.getElementById('timetableContainer');
-      const html = `
-        <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>Quadro de Horários</title>
-            <style>
-              table {
-                border-collapse: collapse;
-                width: 100%;
-                margin-bottom: 20px;
-              }
-              th, td {
-                border: 1px solid #444;
-                padding: 4px;
-                text-align: center;
-                font-size: 12px;
-              }
-              th {
-                background: #ddd;
-                font-weight: bold;
-              }
-              h3 {
-                margin: 10px 0 5px 0;
-                font-size: 14px;
-              }
-            </style>
-          </head>
-          <body>
-            <h2>Quadro de Horários</h2>
-            ${container.innerHTML}
-          </body>
-        </html>`;
-      return html;
-    }
+  const container = document.getElementById('timetableContainer');
+
+  const html = `
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Quadro de Horários</title>
+        <style>
+          @page { margin: 10mm; }
+
+          body {
+            font-family: Arial, sans-serif;
+          }
+
+          h2 {
+            text-align: center;
+            margin: 0 0 16px 0;
+          }
+
+          h3.day-header {
+            background: #8e2de2;
+            color: #ffffff;
+            padding: 6px 8px;
+            margin: 12px 0 0 0;
+            font-size: 13px;
+          }
+
+          table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-bottom: 12px;
+          }
+
+          th, td {
+            border: 1px solid #444;
+            padding: 4px;
+            text-align: center;
+            font-size: 11px;
+          }
+
+          th {
+            background: #4a00e0;
+            color: #ffffff;
+            font-weight: bold;
+          }
+
+          .time-slot {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #4a00e0;
+          }
+
+          /* BLOCO DA AULA COM COR POR PROFESSOR */
+          .lesson {
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 10px;
+            font-weight: bold;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 26px;
+            box-sizing: border-box;
+          }
+
+          /* Mesmas cores da tela principal */
+          .color-0 { background-color: #ff6347; }  /* Tomato */
+          .color-1 { background-color: #4682b4; }  /* SteelBlue */
+          .color-2 { background-color: #3cb371; }  /* MediumSeaGreen */
+          .color-3 { background-color: #ffa500; }  /* Orange */
+          .color-4 { background-color: #9370db; }  /* MediumPurple */
+          .color-5 { background-color: #ff69b4; }  /* HotPink */
+          .color-6 { background-color: #00ced1; }  /* DarkTurquoise */
+          .color-7 { background-color: #f08080; }  /* LightCoral */
+          .color-8 { background-color: #6a5acd; }  /* SlateBlue */
+          .color-9 { background-color: #20b2aa; }  /* LightSeaGreen */
+
+          @media print {
+            body {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            .lesson {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <h2>Quadro de Horários</h2>
+        ${container.innerHTML}
+      </body>
+    </html>
+  `;
+  return html;
+}
 
     function exportPDF() {
       const exportHTML = getTimetableExportHTML();
