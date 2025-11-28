@@ -765,62 +765,54 @@
     }
 
     function onDrop(e) {
-      e.preventDefault();
-      const cell = e.currentTarget.closest('td');
-      if (!cell || !draggedLessonOrigin) return;
+    e.preventDefault();
+    const cell = e.currentTarget.closest('td');
+    if (!cell || !draggedLessonOrigin) return;
 
-      const day = cell.dataset.day;
-      const time = cell.dataset.time;
-      const className = cell.dataset.class;
+    const day = cell.dataset.day;
+    const time = cell.dataset.time;
+    const className = cell.dataset.class;
 
-      // mesmo campo: não faz nada
-      if (
+    // mesmo campo: não faz nada
+    if (
         draggedLessonOrigin.day === day &&
         draggedLessonOrigin.time === time &&
         draggedLessonOrigin.className === className
-      ) {
+    ) {
         draggedLessonOrigin = null;
         return;
-      }
+    }
 
-      // se destino estiver ocupado, não permite (para evitar complicações de troca)
-      if (timetable[day][time][className]) {
+    // se destino estiver ocupado, não permite
+    if (timetable[day][time][className]) {
         alert('Este horário já está ocupado. Libere o campo antes de mover outra aula.');
         draggedLessonOrigin = null;
         return;
-      }
+    }
 
-      const moving = timetable[draggedLessonOrigin.day][draggedLessonOrigin.time][draggedLessonOrigin.className];
-      if (!moving) {
+    const moving = timetable[draggedLessonOrigin.day][draggedLessonOrigin.time][draggedLessonOrigin.className];
+    if (!moving) {
         draggedLessonOrigin = null;
         return;
-      }
+    }
 
-      // verifica conflito de professor
-      if (hasTeacherConflict(moving.teacherUpper, day, time, draggedLessonOrigin)) {
+    // verifica conflito de professor
+    if (hasTeacherConflict(moving.teacherUpper, day, time, draggedLessonOrigin)) {
         alert('Conflito de horário: este professor já possui aula neste horário em outra turma.');
         draggedLessonOrigin = null;
         return;
-      }
-
-      // Move a aula
-      timetable[draggedLessonOrigin.day][draggedLessonOrigin.time][draggedLessonOrigin.className] = null;
-      timetable[day][time][className] = moving;
-
-      draggedLessonOrigin = null;
-      // Se a aula copiada vinha deste campo, atualiza o marcador de origem
-      if (
-        copiedFrom &&
-        copiedFrom.day === draggedLessonOrigin?.day &&
-        copiedFrom.time === draggedLessonOrigin?.time &&
-        copiedFrom.className === draggedLessonOrigin?.className
-      ) {
-        copiedFrom = { day, time, className };
-      }
-
-      renderTimetable();
-      recalcStats();
     }
+
+    // Move a aula
+    timetable[draggedLessonOrigin.day][draggedLessonOrigin.time][draggedLessonOrigin.className] = null;
+    timetable[day][time][className] = moving;
+
+    draggedLessonOrigin = null;
+
+    renderTimetable();
+    recalcStats();
+}
+
 
     // Clique em uma aula: copiar
     function onLessonClick(e) {
@@ -1076,6 +1068,9 @@
     document.getElementById('addTeacherButton').addEventListener('click', addTeacher);
     document.getElementById('distributeButton').addEventListener('click', distributeTimetable);
     document.getElementById('clearButton').addEventListener('click', clearTimetable);
+    // Ouve a tecla Delete para apagar a aula selecionada
+    document.addEventListener('keydown', handleKeyDown);
+
     // document.getElementById('exportPDF').addEventListener('click', exportPDF);
     // document.getElementById('exportXLS').addEventListener('click', exportXLS);
 
